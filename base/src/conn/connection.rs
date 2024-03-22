@@ -1,12 +1,14 @@
+use std::alloc::System;
 use crate::base::conn::router::Router;
 use anyhow::{anyhow, Result};
 use hyper::server::*;
 use hyper_util::rt::TokioIo;
 use std::ops::Add;
-use std::sync::{Arc, Mutex, RwLock};
+use std::sync::{Arc, RwLock};
+use log::info;
 use tokio::net::TcpStream;
 use tokio::runtime::Runtime;
-use tower::service_fn;
+use crate::conn::router::Router;
 
 pub struct Conn {
     io: TokioIo<TcpStream>,
@@ -40,9 +42,9 @@ pub struct ConnPool {
 impl ConnPool {
     pub fn new() -> Result<ConnPool> {
         let runtime = tokio::runtime::Builder::new_multi_thread()
-            .worker_threads(12)
             .enable_all()
             .build()?;
+        info!("Connection pool successfully created");
         Ok(ConnPool {
             conn_num: Arc::new(RwLock::new(0)),
             runtime,
